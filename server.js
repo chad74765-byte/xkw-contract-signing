@@ -262,6 +262,20 @@ const contracts = new Map([
     createdAt: '2026-06-22',
     template: '题库-委托加工v24.11',
     agent: '车悦'
+  }],
+  ['xkw_082873418', {
+    contractId: '115722',
+    signingUrl: 'https://esign.xkw.com/mobile/contract-sign?id=CQ8Xsqq27wyE_ChOoC1auQ',
+    createdAt: '2026-06-22',
+    template: '题库-委托加工v24.11',
+    agent: '车悦'
+  }],
+  ['小可爱one平', {
+    contractId: '115723',
+    signingUrl: 'https://esign.xkw.com/mobile/contract-sign?id=kfEjffw9pai4fyz_WzmdmQ',
+    createdAt: '2026-06-22',
+    template: '题库-委托加工v24.11',
+    agent: '车悦'
   }]
 ]);
 
