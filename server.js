@@ -276,6 +276,28 @@ const contracts = new Map([
     createdAt: '2026-06-22',
     template: '题库-委托加工v24.11',
     agent: '车悦'
+  }],
+  // ── 2026-06-22 (batch 3 — 3 users) ──
+  ['xkw_082328844', {
+    contractId: '115735',
+    signingUrl: 'https://esign.xkw.com/mobile/contract-sign?id=vIjvyKuI-Pz-oPWjtKT7zA',
+    createdAt: '2026-06-22',
+    template: '题库-委托加工v24.11',
+    agent: '车悦'
+  }],
+  ['xkw_084933030', {
+    contractId: '115736',
+    signingUrl: 'https://esign.xkw.com/mobile/contract-sign?id=uOqxNkSeSe61vq2Uy7GBuQ',
+    createdAt: '2026-06-22',
+    template: '题库-委托加工v24.11',
+    agent: '车悦'
+  }],
+  ['xkw_049050074', {
+    contractId: '115739',
+    signingUrl: 'https://textapi.fadada.com:443/api2/person_sign_page.api?token_id=ff8080819e4a3fd3019eeece62026082',
+    createdAt: '2026-06-22',
+    template: '题库-委托加工v24.11',
+    agent: '车悦'
   }]
 ]);
 
