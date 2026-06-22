@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学科网电子签合同 — 签约链接查询</title>
+<style>
+  :root {
+    --primary: #1677ff;
+    --primary-hover: #4096ff;
+    --success: #52c41a;
+    --warning: #faad14;
+    --danger: #ff4d4f;
+    --bg: #f0f2f5;
+    --card-bg: #ffffff;
+    --text: #262626;
+    --text-secondary: #8c8c8c;
+    --border: #d9d9d9;
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container { width: 100%; max-width: 520px; }
+  .header { text-align: center; margin-bottom: 32px; }
+  .header .logo { font-size: 48px; margin-bottom: 12px; }
+  .header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .header .subtitle { font-size: 14px; color: var(--text-secondary); }
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px 28px;
+    transition: box-shadow 0.3s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+  .input-group { position: relative; margin-bottom: 8px; }
+  .input-group label {
+    display: block; font-size: 14px; font-weight: 500;
+    color: var(--text); margin-bottom: 8px;
+  }
+  .input-group .required { color: var(--danger); margin-left: 2px; }
+  .input-wrapper {
+    position: relative; display: flex; align-items: center;
+    border: 2px solid var(--border); border-radius: 8px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+    background: #fff; overflow: hidden;
+  }
+  .input-wrapper:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(22,119,255,0.12);
+  }
+  .input-wrapper.error {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(255,77,79,0.1);
+  }
+  .input-wrapper.success {
+    border-color: var(--success);
+    box-shadow: 0 0 0 3px rgba(82,196,26,0.1);
+  }
+  .input-wrapper .prefix {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 14px; color: var(--text-secondary); font-size: 18px;
+  }
+  .input-wrapper input {
+    flex: 1; border: none; outline: none; padding: 14px 16px 14px 0;
+    font-size: 16px; color: var(--text); background: transparent; font-family: inherit;
+  }
+  .input-wrapper input::placeholder { color: #bfbfbf; }
+  .input-wrapper .suffix {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 14px; cursor: pointer; color: var(--text-secondary);
+    font-size: 16px; opacity: 0; transition: opacity 0.2s;
+  }
+  .input-wrapper .suffix.visible { opacity: 1; }
+  .input-wrapper .suffix:hover { color: var(--text); }
+  .validation-msg { font-size: 13px; min-height: 20px; margin-bottom: 4px; transition: all 0.2s; }
+  .validation-msg.error { color: var(--danger); }
+  .validation-msg.info { color: var(--text-secondary); }
+
+  .btn {
+    width: 100%; padding: 14px 20px; font-size: 16px; font-weight: 500;
+    border: none; border-radius: 8px; cursor: pointer;
+    transition: all 0.25s; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 16px;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--primary-hover); transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(22,119,255,0.3);
+  }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); }
+  .btn-primary:disabled { background: #b0b0b0; cursor: not-allowed; }
+
+  .spinner {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .result {
+    margin-top: 20px; border-radius: var(--radius); overflow: hidden;
+    animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .result.success { background: #f6ffed; border: 1px solid #b7eb8f; }
+  .result.error-box { background: #fff2f0; border: 1px solid #ffccc7; }
+  .result-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 20px; font-size: 15px; font-weight: 500;
+  }
+  .result.success .result-header { color: #389e0d; }
+  .result.error-box .result-header { color: #cf1322; }
+  .result-header .icon { font-size: 22px; }
+  .result-body { padding: 0 20px 20px; }
+  .info-grid {
+    display: grid; grid-template-columns: auto 1fr;
+    gap: 10px 16px; font-size: 14px;
+  }
+  .info-grid .label { color: var(--text-secondary); white-space: nowrap; }
+  .info-grid .value { color: var(--text); font-weight: 500; word-break: break-all; }
+
+  .result-open-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 16px; padding: 10px 24px; font-size: 15px;
+    font-weight: 500; color: #fff; background: var(--success);
+    border: none; border-radius: 8px; cursor: pointer;
+    transition: all 0.2s; font-family: inherit;
+  }
+  .result-open-btn:hover {
+    background: #73d13d; transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(82,196,26,0.3);
+  }
+  .suggestions { margin-top: 12px; font-size: 13px; color: var(--text-secondary); }
+  .suggestions .tag {
+    display: inline-block; padding: 4px 12px; margin: 4px 6px 4px 0;
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 16px; cursor: pointer; font-size: 13px;
+    color: var(--primary); transition: all 0.2s; font-family: inherit;
+  }
+  .suggestions .tag:hover {
+    background: var(--primary); color: #fff; border-color: var(--primary);
+  }
+  .security-badge {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 24px; padding: 12px 16px;
+    background: #e6f7ff; border-radius: 8px;
+    font-size: 13px; color: #096dd9;
+  }
+  .security-badge .icon { font-size: 18px; }
+  .error-detail { font-size: 14px; color: #595959; margin: 4px 0; line-height: 1.5; }
+
+  /* 访问计数 */
+  .stats-bar {
+    margin-top: 32px; text-align: center; font-size: 12px; color: #bfbfbf;
+  }
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; }
+    .header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">📋</div>
+    <h1>电子签合同查询</h1>
+    <p class="subtitle" id="liveBadge">输入用户名，查询签约链接</p>
+  </div>
+
+  <div class="card">
+    <div class="input-group">
+      <label for="username">用户名 <span class="required">*</span></label>
+      <div class="input-wrapper" id="inputWrapper">
+        <span class="prefix">👤</span>
+        <input type="text" id="username"
+          placeholder="请输入用户名（如 xkw_054877889）"
+          autocomplete="off" maxlength="64">
+        <span class="suffix" id="clearBtn" title="清空">✕</span>
+      </div>
+      <div class="validation-msg" id="validationMsg"></div>
+    </div>
+
+    <button class="btn btn-primary" id="queryBtn" disabled>查询签约链接</button>
+    <div id="resultArea"></div>
+  </div>
+
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// 合同数据 — 签约链接 base64 编码存储（生产环境通过后端接口返回）
+// ═══════════════════════════════════════════════════════════
+const CONTRACTS = (() => {
+  const d = [
+    ['xkw_054877889', '115530', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPWp3cFVEUEc3SnA3M2N0T1BZWUZ3d0E=', '2026-06-15 16:23'],
+    ['15521262963',   '115531', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTF4QldPNV9hMDdqNzJfZjVLNDkwb2c=', '2026-06-15 16:36'],
+    ['fei890626',     '115532', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTZ5dEZTNFYtYVhFek5YYllvQmpJdUE=', '2026-06-15 16:38'],
+    ['xkw_087268940', '115533', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPXpFLWpsOWc1Sk5rSGN1RWNwMjNTb1E=', '2026-06-15 16:41'],
+    ['xkw_087925624', '115598', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTdoUUdVdU1hcDh5MFB1M1VkWDh2Q3c=', '2026-06-17 15:02'],
+    ['xkw_053288385', '115599', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPVNkTENjZVRUUEVpVGVvQzJlTG10Q3c=', '2026-06-17 15:03'],
+    ['xkw_087744042', '115631', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPThxYUlURXYtelRMNGVpdWdESzJBcEE=', '2026-06-18 09:51'],
+    ['xkw_087732981', '115633', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPXhWeTlvOUxyV25lVFJZMmZObzlhVlE=', '2026-06-18 09:59'],
+    ['xkw_087994052', '115637', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPXFJVXJEcVBuNFFjd0wtSWFDOXEtaFE=', '2026-06-18 10:46'],
+    ['xkw_087827224', '115665', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPUNCdzM5YV9xOGxXaGlDa09EN3lTM3c=', '2026-06-22 09:33'],
+    ['xkw_088086553', '115666', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTk2aGtpakNpbXpJY3ZwYXk3aWRZYmc=', '2026-06-22 09:39'],
+    // ── 2026-06-22 batch 2 (23 users) ──
+    ['xkw_078385905', '115671', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPW9WYWpneHpVVjkzUE0xYnBENm9xd3c=', '2026-06-22'],
+    ['xkw_082451774', '115672', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTg1UHlPTFI1blp5TnQwZG5PWEZoUXc=', '2026-06-22'],
+    ['tiefengzheng', '115673', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPWhucGhQSWtzWlFZOGxMUzB0dzhsMVE=', '2026-06-22'],
+    ['hysh13579', '115674', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPWs1OVB3YkxIZjdRNlNEeG01VGRhVGc=', '2026-06-22'],
+    ['xkw_087924645', '115675', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPWx1bklxT0pFUUlCSmk1aTNjRnV4TFE=', '2026-06-22'],
+    ['xkw_087979392', '115676', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPXQzT3U2WVNPTGdULXNWc3VIaGVramc=', '2026-06-22'],
+    ['xkw_087940452', '115677', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPVhQam5iRmhwYmZQTlpaTXVXVVpKWXc=', '2026-06-22'],
+    ['xkw_078428030', '115679', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPWxORG5uN3pCTnRDS281R2YxMWs2ZEE=', '2026-06-22'],
+    ['qwpoi',           '115680', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPU9QQnZLdUxCaWpidm5hTmJjaEJVVVE=', '2026-06-22'],
+    ['xkw_087956646', '115681', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPVE3SVpteFkyc0RIZFZIM0hLclpJcUE=', '2026-06-22'],
+    ['Yqn920416',     '115682', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPWpqTXZjTmVnTDM4QVZyNkZua2w5MUE=', '2026-06-22'],
+    ['xkw_060891086', '115683', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTVyekVQV3lBZEhqSjg4dDFDNHBTY3c=', '2026-06-22'],
+    ['xkw_075880297', '115684', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPXgxdUdySXROR2cxMVUtZU02LVotdVE=', '2026-06-22'],
+    ['xkw_074991329', '115685', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPVBad2JEY2MtVkxiYVNvUnZ1Q3Y1bFE=', '2026-06-22'],
+    ['hhhh082',       '115686', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTg0UmE1TWRnVGgtT3hCMWdaWlNPOGc=', '2026-06-22'],
+    ['xkw_086937520', '115687', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTZhQldhMjFtUnIyYjk0MTZkcDJqc1E=', '2026-06-22'],
+    ['xkw_054106244', '115688', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPW1vZmd6blNtQ24tLUMxeWFLN3I4SHc=', '2026-06-22'],
+    ['xkw_066137490', '115689', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPU9uMDlrU2ZBTDRsWkxVU0ZUV3dYR0E=', '2026-06-22'],
+    ['xkw_075466916', '115690', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPUZBd3BCUDhraTk5VmRxY1h1dUNJQ2c=', '2026-06-22'],
+    ['xkw_088085299', '115691', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPXZmR1pXNW5CLVh4WjNXOGRxVHVueWc=', '2026-06-22'],
+    ['xkw_070851081', '115692', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPXRvUnp3NUZuYl9SdnA2eFdnWEFydHc=', '2026-06-22'],
+    ['xkw_048543665', '115693', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPVFQM0ZxSUQzU2FESmlscU44UXpzNGc=', '2026-06-22'],
+    ['xkw_078254783', '115694', 'aHR0cHM6Ly9lc2lnbi54a3cuY29tL21vYmlsZS9jb250cmFjdC1zaWduP2lkPTlTUTY0Yzk4T0RYbFU0TGt2THd6MFE=', '2026-06-22']
+  ];
+  const map = new Map();
+  for (const [user, id, encUrl, ts] of d) {
+    map.set(user, { contractId: id, signingUrl: atob(encUrl), createdAt: ts });
+  }
+  return map;
+})();
+
+const TEMPLATE = '题库-委托加工v24.11';
+const AGENT = '车悦';
+
+// ═══════════════════════════════════════════════════════════
+// DOM 元素
+// ═══════════════════════════════════════════════════════════
+const usernameInput = document.getElementById('username');
+const inputWrapper   = document.getElementById('inputWrapper');
+const clearBtn       = document.getElementById('clearBtn');
+const validationMsg  = document.getElementById('validationMsg');
+const queryBtn       = document.getElementById('queryBtn');
+const resultArea     = document.getElementById('resultArea');
+const statsBar       = document.getElementById('statsBar');
+const liveBadge      = document.getElementById('liveBadge');
+
+let isLoading = false;
+
+// ═══════════════════════════════════════════════════════════
+// 校验
+// ═══════════════════════════════════════════════════════════
+function validate(value) {
+  if (!value || value.trim().length === 0)
+    return { valid: false, message: '请输入用户名' };
+  if (value.length > 64)
+    return { valid: false, message: '用户名长度不能超过64个字符' };
+  if (!/^[a-zA-Z0-9_\-\u4e00-\u9fa5]+$/.test(value))
+    return { valid: false, message: '用户名包含非法字符（仅支持字母、数字、下划线、连字符、中文）' };
+  return { valid: true, message: '' };
+}
+
+function updateUI(result) {
+  inputWrapper.classList.remove('error', 'success');
+  validationMsg.classList.remove('error', 'info');
+  if (!result.valid) {
+    inputWrapper.classList.add('error');
+    validationMsg.classList.add('error');
+    validationMsg.textContent = result.message;
+    queryBtn.disabled = true;
+  } else {
+    inputWrapper.classList.add('success');
+    validationMsg.textContent = '';
+    queryBtn.disabled = false;
+  }
+  clearBtn.classList.toggle('visible', usernameInput.value.length > 0);
+}
+
+usernameInput.addEventListener('input', () => updateUI(validate(usernameInput.value)));
+usernameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !queryBtn.disabled && !isLoading) queryBtn.click();
+});
+
+clearBtn.addEventListener('click', () => {
+  usernameInput.value = '';
+  usernameInput.focus();
+  updateUI({ valid: false, message: '' });
+  resultArea.innerHTML = '';
+});
+
+// ═══════════════════════════════════════════════════════════
+// 查询
+// ═══════════════════════════════════════════════════════════
+queryBtn.addEventListener('click', () => {
+  const username = usernameInput.value.trim();
+  if (!username || isLoading) return;
+
+  const v = validate(username);
+  if (!v.valid) { updateUI(v); return; }
+
+  isLoading = true;
+  queryBtn.disabled = true;
+  resultArea.innerHTML = '';
+  queryBtn.innerHTML = '<span class="spinner"></span> 查询中...';
+
+  // 模拟异步查询（0.5~1s），实际部署后可替换为 fetch 后端
+  const delay = 500 + Math.random() * 500;
+  setTimeout(() => {
+    const contract = CONTRACTS.get(username);
+
+    if (contract) {
+      renderSuccess(username, contract);
+    } else {
+      renderError(username);
+    }
+
+    isLoading = false;
+    queryBtn.innerHTML = '查询签约链接';
+    updateUI(validate(usernameInput.value));
+  }, delay);
+});
+
+// ═══════════════════════════════════════════════════════════
+// 成功渲染
+// ═══════════════════════════════════════════════════════════
+function renderSuccess(username, contract) {
+  const now = new Date().toLocaleString('zh-CN', { hour12: false });
+
+  resultArea.innerHTML = `
+    <div class="result success">
+      <div class="result-header">
+        <span class="icon">✅</span>
+        <span>查询成功 — 合同信息如下</span>
+      </div>
+      <div class="result-body">
+        <div class="info-grid">
+          <span class="label">用户名</span>
+          <span class="value">${esc(username)}</span>
+          <span class="label">合同编号</span>
+          <span class="value">${esc(contract.contractId)}</span>
+          <span class="label">本次查询</span>
+          <span class="value">${esc(now)}</span>
+        </div>
+        <button class="result-open-btn" id="openLinkBtn">
+          🔗 打开签约链接
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('openLinkBtn').addEventListener('click', () => {
+    window.open(contract.signingUrl, '_blank', 'noopener,noreferrer');
+    document.getElementById('openLinkBtn').textContent = '✅ 已打开签约链接';
+    document.getElementById('openLinkBtn').style.background = '#8c8c8c';
+    document.getElementById('openLinkBtn').style.pointerEvents = 'none';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// 失败渲染
+// ═══════════════════════════════════════════════════════════
+function renderError(username) {
+  const suggestions = [];
+  for (const key of CONTRACTS.keys()) {
+    if (key.toLowerCase().includes(username.toLowerCase()) ||
+        username.toLowerCase().includes(key.toLowerCase())) {
+      suggestions.push(key);
+    }
+  }
+  const sg = suggestions.length > 0 ? `
+    <div class="suggestions">
+      <p style="margin-bottom:6px">是否想查询以下用户？</p>
+      ${suggestions.map(s => `<button class="tag" onclick="quickFill('${esc(s)}')">${esc(s)}</button>`).join('')}
+    </div>
+  ` : `<div class="suggestions"><p style="margin-bottom:6px">请确认用户名是否正确，或联系管理员确认合同是否已创建</p></div>`;
+
+  resultArea.innerHTML = `
+    <div class="result error-box">
+      <div class="result-header">
+        <span class="icon">⚠️</span>
+        <span>未找到匹配合同</span>
+      </div>
+      <div class="result-body">
+        <p class="error-detail">用户名 <strong>${esc(username)}</strong> 没有对应的签约合同记录。</p>
+        ${sg}
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 快速填入
+// ═══════════════════════════════════════════════════════════
+function quickFill(username) {
+  usernameInput.value = username;
+  updateUI(validate(username));
+  usernameInput.focus();
+  setTimeout(() => queryBtn.click(), 200);
+}
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ═══════════════════════════════════════════════════════════
+// 初始化
+// ═══════════════════════════════════════════════════════════
+updateUI({ valid: false, message: '' });
+usernameInput.focus();
+</script>
+</body>
+</html>
