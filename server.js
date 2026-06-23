@@ -298,6 +298,21 @@ const contracts = new Map([
     createdAt: '2026-06-22',
     template: '题库-委托加工v24.11',
     agent: '车悦'
+  }],
+  // ── 2026-06-23 (batch 4 — 2 users) ──
+  ['xkw_087292119', {
+    contractId: '115753',
+    signingUrl: 'https://esign.xkw.com/mobile/contract-sign?id=7p235792bk3JdiG39WPEgg',
+    createdAt: '2026-06-23',
+    template: '题库-委托加工v24.11',
+    agent: '车悦'
+  }],
+  ['xkw_087850523', {
+    contractId: '115754',
+    signingUrl: 'https://esign.xkw.com/mobile/contract-sign?id=WCg8XnYwliQwOMVjO8x-ZQ',
+    createdAt: '2026-06-23',
+    template: '题库-委托加工v24.11',
+    agent: '车悦'
   }]
 ]);
 
